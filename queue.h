@@ -1,67 +1,73 @@
 #pragma once
-#include <iostream>
 using namespace std;
 
 struct node
 {
-    InCount data;
+    int beg;
+    int end;
     node* next;
-}
+};
 
 class queue
 {
     private:
-        node* front;
-        node* rear;
-        int count;
+        node* head;
+        node* tail;
+        int size;
     public:
         queue();
-        void enqueue(InCount);
-        InCount dequeue();
-}
+        void enqueue(int, int);
+        void dequeue();
+        void print();
+};
 
 queue::queue()
 {
-    front = nullptr;
-    rear = nullptr;
-    count = 0;
+    head = nullptr;
+    tail = nullptr;
+    size = 0;
 }
 
-void queue::enqueue(InCount item)
+void queue::enqueue(int beg, int end)
 {
     node* temp = new node;
-    temp->data = item;
+    temp->beg = beg;
+    temp->end = end;
     temp->next = nullptr;
-    if(front == nullptr)
+    if(head == nullptr)
     {
-        front = temp;
-        rear = temp;
+        head = temp;
+        tail = temp;
     }
     else
     {
-        rear->next = temp;
-        rear = temp;
+        tail->next = temp;
+        tail = temp;
     }
-    count++;
+    size++;
 }
 
-InCount queue::dequeue()
+void queue::dequeue()
 {
-    InCount item;
-    if(front == nullptr)
+    if(head == nullptr)
     {
-        cout << "Queue is empty" << endl;
-        return item;
+        return;
     }
     else
     {
-        node* temp = front;
-        item = temp->data;
-        front = front->next;
+        node* temp = head;
+        head = head->next;
         delete temp;
-        count--;
-        return item;
+        size--;
     }
 }
 
-
+void queue::print()
+{
+    node* temp = head;
+    while(temp != nullptr)
+    {
+        cout << temp->beg << " " << temp->end << endl;
+        temp = temp->next;
+    }
+}
