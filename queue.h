@@ -19,7 +19,20 @@ class queue
         void enqueue(int, int);
         void dequeue();
         void print();
+        void printToFile(ofstream&);
+        bool isEmpty() {return size == 0;}
+        node* getHead() {return head;}
 };
+
+void queue::printToFile(ofstream& fout)
+{
+    node* temp = head;
+    while(temp != nullptr)
+    {
+        fout << temp->beg << " ";
+        temp = temp->next;
+    }
+}
 
 queue::queue()
 {
