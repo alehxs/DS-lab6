@@ -1,88 +1,91 @@
-#include "ArgumentManager.h"
-#include <fstream>
 #include <iostream>
-#include "queue.h"
+#include <fstream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+#include "ArgumentManager.h"
 using namespace std;
 
-struct InCount{
-    int vertex;
-    int count;
-    InCount() {vertex = 0; count = 0;}
-    InCount(int vert, int cnt){
-        vertex = vert;
-        count = cnt;
+const int MAXN = 10000;
+int a, b; 
+vector<int> adjacent[MAXN];
+int inLevel[MAXN];
+
+void topSort() {
+    int count = 0;
+    vector<int> seq;
+    queue<int> c; 
+    for(int i = 0; i < a; i++){
+        if(inLevel[i] == 0)
+            c.push(i);
     }
-};
-
-//what up zack!!
-
+    while(!c.empty()){
+        int d = c.front();
+        c.pop();
+        seq.push_back(d);
+        for(int v : adjacent[d]){
+            if(--inLevel[v] == 0)
+                c.push(v);
+        }
+        count++;
+    }
+    if(count != a)
+        cout << "No Topological Sorting Exists!" << endl;
+    else{
+        for(int i = 0; i < a; i++){
+            cout << seq[i];
+            if(i != a-1)
+                cout << " ";
+        }
+        cout << endl;
+    }
+}
 
 int main(int argc, char* argv[]){
-    ArgumentManager am(argc, argv);
-    ifstream fin(am.get("input"));
-    ofstream fout(am.get("output"));
+    // ArgumentManager am(argc, argv);
+    // ifstream fin(am.get("input"));
+    // ofstream fout(am.get("output"));
 
-    // ifstream fin("input3.txt");
-    // ofstream fout("output.txt");
+    ifstream fin("input3.txt");
+    ofstream fout("output.txt");
 
-    int numVerts, u, v;
-    queue q;
-    queue q2;
-    fin >> numVerts; //takes # of verticies from input file
+    int num, x, y;
+    fin >> num;
 
-//this creates a bool array that is intialized to false
-    bool** adj = new bool*[numVerts];
-    for(int i = 0; i < numVerts; i++){
-        adj[i] = new bool[numVerts];
-        for(int j = 0; j < numVerts; j++){
-            adj[i][j] = false;
+    queue<int> c;
+    unordered_map<int, vector<int> > adjacentList;
+    unordered_map<int, int> inEdges;
+    vector<int> sortedVertices;
+
+    while(fin >> x >> y){
+        adjacentList[x].push_back(y);
+        inEdges[y]++;
+    }
+    for(int i = 0; i < num; i++){
+        if (inEdges[i] == 0) {
+            c.push(i);
         }
     }
-    
-//this creates an array of structs that holds the vertex and the number of incoming edges
-    InCount* incounts = new InCount[numVerts];
-    for(int i = 0; i < numVerts; i++){
-        incounts[i].vertex = i;
-    }
-
-//this reads in the edges from the input file and sets the corresponding adjaceny matrix values to true
-    cout << numVerts << endl;
-    while(fin >> u >> v){
-        //cout << u << " " << v << endl;
-        adj[u][v] = true;
-        incounts[v].count++;
-        q.enqueue(u, v);
-    }
-
-//this prints the array of structs
-    cout << "Array of structs: " << endl;
-    for(int i = 0; i < numVerts; i++){
-        cout << incounts[i].vertex << " " << incounts[i].count << endl;
-    }
-    cout << endl;
-
-//until all struct values are 0, this will find the first struct with a count of 0 and enqueue it
-    for (int i = 0; i < numVerts; i++){
-        for(int j = 0; j < numVerts; j++){
-            if(incounts[j].count == 0){
-                // cout << incounts[j].vertex << " ";
-                q2.enqueue(incounts[j].vertex, 0);
-                incounts[j].count = -1;
-                for(int k = 0; k < numVerts; k++){
-                    if(adj[j][k] == true){
-                        incounts[k].count--;
-                    }
-                }
+    while(!c.empty()){
+        int currentVertex = c.front();
+        c.pop();
+        sortedVertices.push_back(currentVertex);
+        for (int nextTo : adjacentList[currentVertex]) {
+            inEdges[nextTo]--;
+            if (inEdges[nextTo] == 0) {
+                c.push(nextTo);
             }
         }
     }
-    if (q2.isEmpty()){
+    if(sortedVertices.size() != num){
         fout << "No Topological Sorting Exists!" << endl;
+        return 0;
     }
-    else
-    {
-        q2.printToFile(fout);
-        fout << endl;
-    }
+    for(int vert : sortedVertices)
+        fout << vert << " ";
+    fout << endl;
+
+    fin.close();
+    fout.close();
     return 0;
 }
